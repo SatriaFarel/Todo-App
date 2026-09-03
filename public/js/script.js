@@ -10,7 +10,7 @@
         setInterval(updateDateTime, 1000);
         updateDateTime();
 
-        const API_URL = 'http://localhost:8080/api/tasks';
+        const API_URL = 'http://todo-app-sf/api/tasks';
 
         // Mengambil seluruh data tugas dari backend
         async function fetchTasks() {
