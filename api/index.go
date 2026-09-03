@@ -1,4 +1,4 @@
-package main
+package handler
 
 import (
 	"encoding/json"
@@ -17,7 +17,7 @@ var tasks = []Task{
 	
 }
 
-func tasksHandler(w http.ResponseWriter, r *http.Request) {
+func Handler(w http.ResponseWriter, r *http.Request) {
 	// 1. SET HEADER CORS DI PALING ATAS
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
@@ -120,8 +120,8 @@ func tasksHandler(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	// PENTING: Tambahkan slash di akhir ("/api/tasks/") agar menangkap /api/tasks/1, /api/tasks/2, dst.
-	http.HandleFunc("/api/tasks/", tasksHandler)
-	http.HandleFunc("/api/tasks", tasksHandler)
+	http.HandleFunc("/api/tasks/", Handler)
+	http.HandleFunc("/api/tasks", Handler)
 
 	fmt.Println("Server running on http://localhost:8080")
 	http.ListenAndServe(":8080", nil)
