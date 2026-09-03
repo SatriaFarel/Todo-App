@@ -10,7 +10,7 @@
         setInterval(updateDateTime, 1000);
         updateDateTime();
 
-        const API_URL = 'https://todo-app-sf/api/tasks';
+        const API_URL = 'https://todo-app-sf.vercel.app/api';
 
         // Mengambil seluruh data tugas dari backend
         async function fetchTasks() {
