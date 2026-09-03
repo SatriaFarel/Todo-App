@@ -118,11 +118,11 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 }
 
-func main() {
-	// PENTING: Tambahkan slash di akhir ("/api/tasks/") agar menangkap /api/tasks/1, /api/tasks/2, dst.
-	http.HandleFunc("/api/tasks/", Handler)
-	http.HandleFunc("/api/tasks", Handler)
+// func main() {
+// 	// PENTING: Tambahkan slash di akhir ("/api/tasks/") agar menangkap /api/tasks/1, /api/tasks/2, dst.
+// 	http.HandleFunc("/api/tasks/", Handler)
+// 	http.HandleFunc("/api/tasks", Handler)
 
-	fmt.Println("Server running on http://localhost:8080")
-	http.ListenAndServe(":8080", nil)
-}
+// 	fmt.Println("Server running on http://localhost:8080")
+// 	http.ListenAndServe(":8080", nil)
+// }
