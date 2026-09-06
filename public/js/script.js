@@ -13,11 +13,44 @@ updateDateTime();
 // Sesuaikan URL endpoint mengarah ke /api/tasks
 const API_URL = 'https://todo-app.kishiyuusha.my.id/api/tasks';
 
-// Ambil id_user yang disimpan di localStorage saat login berhasil (misal: localStorage.setItem('id_user', 1))
-const currentUserId = localStorage.getItem('id_user') || 1; 
+// Ambil id_user yang disimpan di localStorage saat login berhasil
+const currentUserId = localStorage.getItem('id_user');
+
+// Fungsi Logout
+function logout() {
+    localStorage.removeItem('id_user');
+    window.location.href = "login.html";
+}
+
+// Cek Sesi (Apakah ID masih valid di database)
+async function checkSession() {
+    if (!currentUserId) {
+        window.location.href = "login.html";
+        return;
+    }
+
+    try {
+        const response = await fetch(`/api/check-session?id=${currentUserId}`);
+        if (!response.ok) {
+            throw new Error("Session invalid");
+        }
+    } catch (error) {
+        console.error("Session check failed:", error);
+        localStorage.removeItem('id_user');
+        window.location.href = "login.html";
+    }
+}
+
+// Jalankan cek sesi segera
+checkSession();
+
+// Pasang event listener logout jika tombol ada
+document.getElementById('logout-btn')?.addEventListener('click', logout);
 
 // Mengambil seluruh data tugas dari backend berdasarkan id_user
 async function fetchTasks() {
+    if (!currentUserId) return;
+
     const taskList = document.getElementById('task-list');
     const taskCount = document.getElementById('task-count');
 

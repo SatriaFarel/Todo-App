@@ -17,6 +17,7 @@ import (
 // ---------------------------------------------------------
 
 type AuthPayload struct {
+	ID       int    `json:"id"`
 	Email    string `json:"email"`
 	Password string `json:"password"`
 }
@@ -86,8 +87,9 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		var body AuthPayload
 		json.NewDecoder(r.Body).Decode(&body)
 
+		var userID int
 		var passwordDariDatabase string
-		err = conn.QueryRow(ctx, "SELECT password FROM users WHERE email = $1", body.Email).Scan(&passwordDariDatabase)
+		err = conn.QueryRow(ctx, "SELECT id, password FROM users WHERE email = $1", body.Email).Scan(&userID, &passwordDariDatabase)
 		if err != nil {
 			http.Error(w, `{"error": "Login Gagal: Email tidak ditemukan"}`, http.StatusUnauthorized)
 			return
@@ -100,7 +102,31 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(map[string]string{"message": "Login Berhasil! Selamat datang."})
+		json.NewEncoder(w).Encode(map[string]interface{}{
+			"message": "Login Berhasil!",
+			"id":      userID,
+		})
+		return
+	}
+
+	if strings.HasSuffix(path, "/check-session") && r.Method == http.MethodGet {
+		conn, ctx, err := connectDB()
+		if err != nil {
+			http.Error(w, `{"error": "Gagal konek database"}`, http.StatusInternalServerError)
+			return
+		}
+		defer conn.Close(ctx)
+
+		userID := r.URL.Query().Get("id")
+		var exists bool
+		err = conn.QueryRow(ctx, "SELECT EXISTS(SELECT 1 FROM users WHERE id = $1)", userID).Scan(&exists)
+		if err != nil || !exists {
+			http.Error(w, `{"error": "Sesi tidak valid"}`, http.StatusUnauthorized)
+			return
+		}
+
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(map[string]bool{"valid": true})
 		return
 	}
 
