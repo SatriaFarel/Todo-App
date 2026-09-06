@@ -9,121 +9,140 @@
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 </head>
 
-<body class="bg-slate-900 text-slate-100 min-h-screen antialiased">
+<body class="bg-slate-900 text-slate-100 min-h-screen antialiased bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-slate-800 via-slate-900 to-slate-900">
 
     <!-- Header Aplikasi -->
-    <header class="border-b border-slate-800 bg-slate-900/90 sticky top-0 z-50">
-        <div class="container mx-auto px-4 py-4 max-w-5xl flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div class="flex flex-col text-center sm:block sm:text-left">
-                <h1 class="text-2xl font-bold text-white tracking-tight">Todo Workplace</h1>
-                <p class="text-xs text-slate-400 mt-0.5">Catatan tugas harian & tautan profil.</p>
+    <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur-md sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-3 max-w-6xl flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-teal-500 flex items-center justify-center shadow-lg shadow-blue-900/20">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M2 12h20"/></svg>
+                </div>
+                <div class="hidden sm:block">
+                    <h1 class="text-lg font-bold text-white leading-tight">Todo Workplace</h1>
+                    <p class="text-[10px] text-slate-400 uppercase tracking-widest">Personal Dashboard</p>
+                </div>
             </div>
 
-            <!-- Tanggal & Jam -->
-            <div class="bg-slate-800/80 border border-slate-700/60 rounded-lg px-4 py-2 text-center sm:text-right">
-                <p id="current-date" class="text-[11px] text-slate-400"></p>
-                <p id="current-time" class="text-base font-bold font-mono text-teal-400"></p>
+            <div class="flex items-center gap-4">
+                <!-- Tanggal & Jam (Ringkas) -->
+                <div class="hidden md:flex flex-col items-end border-r border-slate-700 pr-4">
+                    <p id="current-time" class="text-sm font-bold font-mono text-teal-400"></p>
+                    <p id="current-date" class="text-[10px] text-slate-500"></p>
+                </div>
+                
+                <!-- User Menu -->
+                <div class="flex items-center gap-3 pl-2">
+                    <div class="text-right hidden xs:block">
+                        <p class="text-xs font-bold text-white">Satria Farel</p>
+                        <p class="text-[10px] text-teal-500">Online</p>
+                    </div>
+                    <button id="logout-btn" class="p-2.5 bg-slate-800 hover:bg-rose-500/20 border border-slate-700 rounded-xl transition-all group" title="Logout">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-slate-400 group-hover:text-rose-500"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                    </button>
+                </div>
             </div>
         </div>
     </header>
 
     <!-- Konten Utama -->
-    <main class="container mx-auto px-4 py-8 max-w-5xl">
-        <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
-
-            <!-- Bagian Kiri: Profil & Tautan Portofolio -->
-            <section class="md:col-span-5 space-y-4">
-                <!-- Info Profil -->
-                <div class="bg-slate-800/50 border border-slate-700/50 rounded-xl p-5">
-                    <div class="flex items-center justify-between mb-3">
-                        <div class="flex items-center gap-3.5">
-                            <div
-                                class="w-12 h-12 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-base">
-                                SF
-                            </div>
-                            <div>
-                                <h2 class="text-base font-bold text-white">Satria Farel</h2>
-                                <p class="text-xs text-teal-400">Web Developer</p>
-                            </div>
-                        </div>
-                        <button id="logout-btn" class="p-2 hover:bg-rose-500/10 rounded-lg group transition" title="Logout">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-slate-400 group-hover:text-rose-500"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-                        </button>
-                    </div>
-                    <!-- <p class="text-xs text-slate-300 leading-relaxed border-t border-slate-700/50 pt-3">
-                        Fokus pada pengembangan aplikasi web menggunakan Go, JavaScript, dan Tailwind CSS.
-                    </p> -->
-                </div>
-
-                <!-- Tautan Luar -->
-                <div class="bg-slate-800/50 border border-slate-700/50 rounded-xl p-5 space-y-3">
-                    <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Portofolio & Media Sosial
-                    </h3>
-
-                    <div class="space-y-2">
-                        <a href="https://github.com/SatriaFarel" target="_blank" rel="noopener noreferrer"
-                            class="flex items-center justify-between p-3 rounded-lg bg-slate-800 border border-slate-700 hover:border-blue-500/50 transition">
-                            <div>
-                                <p class="text-xs font-medium text-white">GitHub Profile</p>
-                                <p class="text-[11px] text-slate-400">Repository & project open-source</p>
-                            </div>
-                            <span class="text-xs text-slate-500">➔</span>
-                        </a>
-
-                        <a href="https://www.linkedin.com/in/satria-farel-cipta-permata" target="_blank" rel="noopener noreferrer"
-                            class="flex items-center justify-between p-3 rounded-lg bg-slate-800 border border-slate-700 hover:border-sky-500/50 transition">
-                            <div>
-                                <p class="text-xs font-medium text-white">LinkedIn</p>
-                                <p class="text-[11px] text-slate-400">Profil profesional</p>
-                            </div>
-                            <span class="text-xs text-slate-500">➔</span>
-                        </a>
-
-                        <a href="https://linktree.kishiyuusha.my.id" target="_blank" rel="noopener noreferrer"
-                            class="flex items-center justify-between p-3 rounded-lg bg-slate-800 border border-slate-700 hover:border-sky-500/50 transition">
-                            <div>
-                                <p class="text-xs font-medium text-white">Linktree</p>
-                                <p class="text-[11px] text-slate-400">Kumpulan tautan media sosial</p>
-                            </div>
-                            <span class="text-xs text-slate-500">➔</span>
-                        </a>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Bagian Kanan: Aplikasi Todo List -->
-            <section class="md:col-span-7">
-                <div class="bg-slate-800/50 border border-slate-700/50 rounded-xl p-5 space-y-5">
-                    <div class="flex items-center justify-between">
+    <main class="container mx-auto px-4 py-8 max-w-6xl">
+        <div class="flex flex-col lg:flex-row gap-8">
+            
+            <!-- Bagian Kiri: Aplikasi Todo List (Utama) -->
+            <section class="flex-1 order-1 lg:order-2">
+                <div class="bg-slate-800/40 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-6 shadow-2xl">
+                    <div class="flex items-center justify-between mb-6">
                         <div>
-                            <h2 class="text-lg font-bold text-white">Daftar Tugas</h2>
-                            <p class="text-xs text-slate-400">Kelola tugas harian yang perlu diselesaikan.</p>
+                            <h2 class="text-xl font-bold text-white">Daftar Tugas</h2>
+                            <p class="text-xs text-slate-400">Kelola produktivitas harian Anda</p>
                         </div>
-                        <span id="task-count"
-                            class="text-xs bg-slate-700 text-slate-300 px-2.5 py-1 rounded-md font-mono">
-                            0 Tasks
-                        </span>
+                        <div class="flex flex-col items-end">
+                            <span id="task-count" class="text-[10px] bg-blue-600/20 text-blue-400 border border-blue-500/30 px-3 py-1 rounded-full font-bold uppercase tracking-tighter">
+                                0 Tasks
+                            </span>
+                        </div>
                     </div>
 
                     <!-- Input Tambah Task -->
-                    <div class="flex gap-2">
-                        <input type="text" id="new-task" placeholder="Tulis tugas baru..."
-                            class="bg-slate-900 border border-slate-700 text-xs text-slate-100 rounded-lg px-3 py-2.5 w-full focus:outline-none focus:border-blue-500" />
+                    <div class="relative group mb-6">
+                        <input type="text" id="new-task" placeholder="Ketik tugas baru lalu tekan Enter..."
+                            class="bg-slate-900/50 border border-slate-700 text-sm text-slate-100 rounded-xl px-4 py-3.5 w-full focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 transition-all placeholder:text-slate-600" />
                         <button id="add-task"
-                            class="bg-blue-600 hover:bg-blue-500 text-white font-medium text-xs px-4 py-2.5 rounded-lg transition active:scale-95 whitespace-nowrap">
+                            class="absolute right-2 top-2 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs px-4 py-2 rounded-lg transition active:scale-95">
                             Tambah
                         </button>
                     </div>
 
-                    <!-- Container Tempat Task Dirender -->
-                    <div id="task-list" class="space-y-2 max-h-[400px] overflow-y-auto pr-1">
+                    <!-- Container Tempat Task -->
+                    <div id="task-list" class="space-y-3 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
                         <!-- Item dikirim via JavaScript -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Bagian Kanan/Samping: Profil & Link -->
+            <section class="lg:w-80 space-y-6 order-2 lg:order-1">
+                <!-- Info Profil Ringkas -->
+                <div class="bg-slate-800/40 border border-slate-700/50 rounded-2xl p-6 relative overflow-hidden group">
+                    <div class="absolute -right-4 -top-4 w-24 h-24 bg-blue-600/10 rounded-full blur-2xl group-hover:bg-blue-600/20 transition-all"></div>
+                    
+                    <div class="relative flex flex-col items-center text-center">
+                        <div class="w-20 h-20 rounded-2xl bg-gradient-to-tr from-slate-700 to-slate-600 p-1 mb-4 shadow-xl">
+                            <div class="w-full h-full rounded-xl bg-slate-800 flex items-center justify-center text-2xl font-black text-blue-500">
+                                SF
+                            </div>
+                        </div>
+                        <h2 class="text-lg font-bold text-white">Satria Farel</h2>
+                        <p class="text-xs text-teal-400 font-medium mb-4">Web Developer</p>
+                        
+                        <div class="w-full pt-4 border-t border-slate-700/50 flex justify-around">
+                            <div class="text-center">
+                                <p class="text-[10px] text-slate-500 uppercase tracking-widest">Status</p>
+                                <p class="text-xs font-bold text-slate-300">Active</p>
+                            </div>
+                            <div class="text-center border-l border-slate-700/50 pl-6">
+                                <p class="text-[10px] text-slate-500 uppercase tracking-widest">Role</p>
+                                <p class="text-xs font-bold text-slate-300">Admin</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tautan Luar -->
+                <div class="space-y-3">
+                    <h3 class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] ml-2">Connect With Me</h3>
+                    
+                    <div class="grid grid-cols-1 gap-2">
+                        <a href="https://github.com/SatriaFarel" target="_blank"
+                            class="flex items-center gap-3 p-3 rounded-xl bg-slate-800/40 border border-slate-700/50 hover:border-blue-500/50 hover:bg-slate-800 transition-all group">
+                            <div class="w-8 h-8 rounded-lg bg-slate-900 flex items-center justify-center text-slate-400 group-hover:text-white transition-colors">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+                            </div>
+                            <span class="text-xs font-medium text-slate-300 group-hover:text-white">GitHub</span>
+                        </a>
+
+                        <a href="https://www.linkedin.com/in/satria-farel-cipta-permata" target="_blank"
+                            class="flex items-center gap-3 p-3 rounded-xl bg-slate-800/40 border border-slate-700/50 hover:border-sky-500/50 hover:bg-slate-800 transition-all group">
+                            <div class="w-8 h-8 rounded-lg bg-slate-900 flex items-center justify-center text-slate-400 group-hover:text-sky-400 transition-colors">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+                            </div>
+                            <span class="text-xs font-medium text-slate-300 group-hover:text-white">LinkedIn</span>
+                        </a>
                     </div>
                 </div>
             </section>
 
         </div>
     </main>
+
+    <style>
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #475569; }
+    </style>
+
 
     <script src="js/script.js"></script>
 </body>
