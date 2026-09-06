@@ -11,7 +11,7 @@ setInterval(updateDateTime, 1000);
 updateDateTime();
 
 // Sesuaikan URL endpoint mengarah ke /api/tasks
-const API_URL = 'https://todo-app-sf.vercel.id/api/tasks';
+const API_URL = 'https://todo-app.kishiyuusha.my.id/api/tasks';
 
 // Ambil id_user yang disimpan di localStorage saat login berhasil (misal: localStorage.setItem('id_user', 1))
 const currentUserId = localStorage.getItem('id_user') || 1; 
