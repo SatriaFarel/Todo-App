@@ -3,7 +3,6 @@ package handler
 import (
 	"context"
 	"encoding/json"
-	//"fmt"
 	"net/http"
 	"os"
 	"strconv"
@@ -17,32 +16,26 @@ import (
 // STRUKTUR DATA (MODEL)
 // ---------------------------------------------------------
 
-// Buat nampung data Register atau Login
 type AuthPayload struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
 }
 
-// Buat nampung data Task (tugas) yang lama
 type Task struct {
-	ID   int    `json:"id"`
-	Task string `json:"task"`
+	ID     int    `json:"id"`
+	IDUser int    `json:"id_user"`
+	Task   string `json:"task"`
 }
 
-// Data sementara untuk task (punya kamu yang lama)
-var tasks = []Task{}
-
 // ---------------------------------------------------------
-// IKLAN / UTAMA (HANDLER VERCEL)
+// HANDLER UTAMA VERCEL
 // ---------------------------------------------------------
 func Handler(w http.ResponseWriter, r *http.Request) {
-	// 1. SET HEADER CORS SUPAYA TIDAK DIBLOKIR FRONTEND
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 	w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 	w.Header().Set("Content-Type", "application/json")
 
-	// 2. TANGANI PREFLIGHT OPTIONS
 	if r.Method == http.MethodOptions {
 		w.WriteHeader(http.StatusOK)
 		return
@@ -51,10 +44,9 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	path := r.URL.Path
 
 	// =========================================================
-	// BAGIAN A: FITUR REGISTER & LOGIN (PAKAI DATABASE)
+	// BAGIAN A: REGISTER & LOGIN
 	// =========================================================
 
-	// Kalau akses /api/register
 	if strings.HasSuffix(path, "/register") && r.Method == http.MethodPost {
 		conn, ctx, err := connectDB()
 		if err != nil {
@@ -66,14 +58,12 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		var body AuthPayload
 		json.NewDecoder(r.Body).Decode(&body)
 
-		// Encrip / Acak password biar aman
 		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(body.Password), bcrypt.DefaultCost)
 		if err != nil {
 			http.Error(w, `{"error": "Gagal mengamankan password"}`, http.StatusInternalServerError)
 			return
 		}
 
-		// Masukin ke database Neon/Vercel
 		_, err = conn.Exec(ctx, "INSERT INTO users (email, password) VALUES ($1, $2)", body.Email, string(hashedPassword))
 		if err != nil {
 			http.Error(w, `{"error": "Email sudah terdaftar atau tidak valid"}`, http.StatusBadRequest)
@@ -85,7 +75,6 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Kalau akses /api/login
 	if strings.HasSuffix(path, "/login") && r.Method == http.MethodPost {
 		conn, ctx, err := connectDB()
 		if err != nil {
@@ -104,7 +93,6 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		// Bandingkan password ketikan user sama database
 		err = bcrypt.CompareHashAndPassword([]byte(passwordDariDatabase), []byte(body.Password))
 		if err != nil {
 			http.Error(w, `{"error": "Login Gagal: Password salah"}`, http.StatusUnauthorized)
@@ -117,10 +105,9 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// =========================================================
-	// BAGIAN B: FITUR TASKS (KODE KAMU YANG LAMA)
+	// BAGIAN B: TASKS (TERHUBUNG KE DATABASE)
 	// =========================================================
 
-	// Helper buat ambil ID dari URL (contoh: /api/tasks/1)
 	getTaskID := func() (int, error) {
 		idStr := r.URL.Query().Get("id")
 		if idStr == "" {
@@ -132,68 +119,124 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		return strconv.Atoi(idStr)
 	}
 
-	// GET /api/tasks (Ambil semua data task)
+	// GET /api/tasks (Ambil semua task berdasarkan id_user, contoh: /api/tasks?id_user=1)
 	if strings.Contains(path, "/tasks") && r.Method == http.MethodGet {
+		conn, ctx, err := connectDB()
+		if err != nil {
+			http.Error(w, `{"error": "Gagal konek database"}`, http.StatusInternalServerError)
+			return
+		}
+		defer conn.Close(ctx)
+
+		userID := r.URL.Query().Get("id_user")
+		var rows pgx.Rows
+
+		if userID != "" {
+			rows, err = conn.Query(ctx, "SELECT id, id_user, task FROM tasks WHERE id_user = $1 ORDER BY id DESC", userID)
+		} else {
+			rows, err = conn.Query(ctx, "SELECT id, id_user, task FROM tasks ORDER BY id DESC")
+		}
+
+		if err != nil {
+			http.Error(w, `{"error": "Gagal mengambil data task"}`, http.StatusInternalServerError)
+			return
+		}
+		defer rows.Close()
+
+		var tasks []Task
+		for rows.Next() {
+			var t Task
+			rows.Scan(&t.ID, &t.IDUser, &t.Task)
+			tasks = append(tasks, t)
+		}
+
+		// Jika kosong, pastikan mengembalikan array kosong `[]` bukan null
+		if tasks == nil {
+			tasks = []Task{}
+		}
+
 		json.NewEncoder(w).Encode(tasks)
 		return
 	}
 
-	// POST /api/tasks (Tambah task baru)
+	// POST /api/tasks (Tambah task baru ke database)
 	if strings.Contains(path, "/tasks") && r.Method == http.MethodPost {
-		var task Task
-		err := json.NewDecoder(r.Body).Decode(&task)
+		conn, ctx, err := connectDB()
 		if err != nil {
-			http.Error(w, "Invalid JSON", http.StatusBadRequest)
+			http.Error(w, `{"error": "Gagal konek database"}`, http.StatusInternalServerError)
+			return
+		}
+		defer conn.Close(ctx)
+
+		var task Task
+		err = json.NewDecoder(r.Body).Decode(&task)
+		if err != nil || task.Task == "" || task.IDUser == 0 {
+			http.Error(w, `{"error": "Data JSON atau id_user/task tidak valid"}`, http.StatusBadRequest)
 			return
 		}
 
-		task.ID = len(tasks) + 1
-		tasks = append(tasks, task)
+		err = conn.QueryRow(ctx, "INSERT INTO tasks (id_user, task) VALUES ($1, $2) RETURNING id", task.IDUser, task.Task).Scan(&task.ID)
+		if err != nil {
+			http.Error(w, `{"error": "Gagal menyimpan task ke database"}`, http.StatusInternalServerError)
+			return
+		}
 
 		w.WriteHeader(http.StatusCreated)
 		json.NewEncoder(w).Encode(task)
 		return
 	}
 
-	// PUT /api/tasks/1 (Ubah task)
+	// PUT /api/tasks/1 (Ubah task di database)
 	if strings.Contains(path, "/tasks") && r.Method == http.MethodPut {
+		conn, ctx, err := connectDB()
+		if err != nil {
+			http.Error(w, `{"error": "Gagal konek database"}`, http.StatusInternalServerError)
+			return
+		}
+		defer conn.Close(ctx)
+
 		id, err := getTaskID()
 		if err != nil {
-			http.Error(w, "Invalid ID", http.StatusBadRequest)
+			http.Error(w, `{"error": "Invalid ID"}`, http.StatusBadRequest)
 			return
 		}
 
 		var updatedTask Task
 		json.NewDecoder(r.Body).Decode(&updatedTask)
 
-		for i := range tasks {
-			if tasks[i].ID == id {
-				tasks[i].Task = updatedTask.Task
-				json.NewEncoder(w).Encode(tasks[i])
-				return
-			}
-		}	
-		http.Error(w, "Task not found", http.StatusNotFound)
-		return
-	}
-
-	// DELETE /api/tasks/1 (Hapus task)
-	if strings.Contains(path, "/tasks") && r.Method == http.MethodDelete {
-		id, err := getTaskID()
-		if err != nil {
-			http.Error(w, "Invalid ID", http.StatusBadRequest)
+		result, err := conn.Exec(ctx, "UPDATE tasks SET task = $1 WHERE id = $2", updatedTask.Task, id)
+		if err != nil || result.RowsAffected() == 0 {
+			http.Error(w, `{"error": "Task tidak ditemukan atau gagal diubah"}`, http.StatusNotFound)
 			return
 		}
 
-		for i := range tasks {
-			if tasks[i].ID == id {
-				tasks = append(tasks[:i], tasks[i+1:]...)
-				w.WriteHeader(http.StatusNoContent)
-				return
-			}
+		updatedTask.ID = id
+		json.NewEncoder(w).Encode(updatedTask)
+		return
+	}
+
+	// DELETE /api/tasks/1 (Hapus task dari database)
+	if strings.Contains(path, "/tasks") && r.Method == http.MethodDelete {
+		conn, ctx, err := connectDB()
+		if err != nil {
+			http.Error(w, `{"error": "Gagal konek database"}`, http.StatusInternalServerError)
+			return
+		}
+		defer conn.Close(ctx)
+
+		id, err := getTaskID()
+		if err != nil {
+			http.Error(w, `{"error": "Invalid ID"}`, http.StatusBadRequest)
+			return
 		}
 
-		http.Error(w, "Task not found", http.StatusNotFound)
+		result, err := conn.Exec(ctx, "DELETE FROM tasks WHERE id = $1", id)
+		if err != nil || result.RowsAffected() == 0 {
+			http.Error(w, `{"error": "Task tidak ditemukan"}`, http.StatusNotFound)
+			return
+		}
+
+		w.WriteHeader(http.StatusNoContent)
 		return
 	}
 
@@ -201,7 +244,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 }
 
 // ---------------------------------------------------------
-// FUNGSI BANTUAN KONEKSI DATABASE
+// FUNGSI KONEKSI DATABASE
 // ---------------------------------------------------------
 func connectDB() (*pgx.Conn, context.Context, error) {
 	ctx := context.Background()
