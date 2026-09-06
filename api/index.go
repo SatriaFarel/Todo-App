@@ -3,7 +3,7 @@ package handler
 import (
 	"context"
 	"encoding/json"
-	// "fmt"
+	//"fmt"
 	"net/http"
 	"os"
 	"strconv"
@@ -172,8 +172,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 				json.NewEncoder(w).Encode(tasks[i])
 				return
 			}
-		}
-
+		}	
 		http.Error(w, "Task not found", http.StatusNotFound)
 		return
 	}
@@ -207,7 +206,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 func connectDB() (*pgx.Conn, context.Context, error) {
 	ctx := context.Background()
 	databaseURL := os.Getenv("DATABASE_URL")
-	
+
 	conn, err := pgx.Connect(ctx, databaseURL)
 	if err != nil {
 		return nil, ctx, err
