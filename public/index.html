@@ -68,7 +68,7 @@
             <!-- Register Link -->
             <p class="text-center text-sm text-slate-400">
                 Belum punya akun? 
-                <a href="register.html" class="text-teal-400 hover:text-teal-300 font-medium transition">Daftar gratis</a>
+                <a href="register" class="text-teal-400 hover:text-teal-300 font-medium transition">Daftar gratis</a>
             </p>
         </div>
 
@@ -110,7 +110,7 @@
                 if (response.ok) {
                     alert(data.message || "Login Berhasil!");
                     // Contoh kalau sukses, lempar ke halaman dashboard task
-                    window.location.href = "home.html"; 
+                    window.location.href = "home"; 
                 } else {
                     alert(data.error || "Gagal login, periksa kembali email & password!");
                 }
