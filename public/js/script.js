@@ -19,7 +19,7 @@ const currentUserId = localStorage.getItem('id_user');
 // Fungsi Logout
 function logout() {
     localStorage.removeItem('id_user');
-    window.location.href = "login.html";
+    window.location.href = "index.html";
 }
 
 // Cek Sesi (Apakah ID masih valid di database)
