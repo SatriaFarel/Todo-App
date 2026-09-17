@@ -109,6 +109,7 @@
 
                 if (response.ok) {
                     alert(data.message || "Login Berhasil!");
+                    localStorage.setItem("id_user", data.id);
                     // Contoh kalau sukses, lempar ke halaman dashboard task
                     window.location.href = "home.html"; 
                 } else {
