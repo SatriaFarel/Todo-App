@@ -28,6 +28,13 @@ type Task struct {
 	Task   string `json:"task"`
 }
 
+type User struct {
+	ID int `json:"id"`
+	Name string	`json:"name"`
+	Email string `json:"email"`
+	Password string `json:"password"`
+}
+
 // ---------------------------------------------------------
 // HANDLER UTAMA VERCEL
 // ---------------------------------------------------------
@@ -263,6 +270,40 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		w.WriteHeader(http.StatusNoContent)
+		return
+	}
+
+	// GET /api/users (Ambil semua users)
+	if strings.Contains(path, "/users") && r.Method == http.MethodGet {
+		conn, ctx, err := connectDB()
+		if err != nil {
+			http.Error(w, `{"error": "Gagal konek database"}`, http.StatusInternalServerError)
+			return
+		}
+		defer conn.Close(ctx)
+
+		var rows pgx.Rows
+		rows, err = conn.Query(ctx, "SELECT id, id_user, task FROM tasks ORDER BY id DESC")
+
+		if err != nil {
+			http.Error(w, `{"error": "Gagal mengambil data task"}`, http.StatusInternalServerError)
+			return
+		}
+		defer rows.Close()
+
+		var tasks []User
+		for rows.Next() {
+			var t User
+			rows.Scan(&t.ID, &t.Name, &t.Email)
+			tasks = append(tasks, t)
+		}
+
+		// Jika kosong, pastikan mengembalikan array kosong `[]` bukan null
+		if tasks == nil {
+			tasks = []User{}
+		}
+
+		json.NewEncoder(w).Encode(tasks)
 		return
 	}
 
