@@ -283,7 +283,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		defer conn.Close(ctx)
 
 		var rows pgx.Rows
-		rows, err = conn.Query(ctx, "SELECT id, id_user, task FROM tasks ORDER BY id DESC")
+		rows, err = conn.Query(ctx, "SELECT * FROM userss ORDER BY id DESC")
 
 		if err != nil {
 			http.Error(w, `{"error": "Gagal mengambil data task"}`, http.StatusInternalServerError)
