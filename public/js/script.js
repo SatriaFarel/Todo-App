@@ -25,7 +25,7 @@ function logout() {
 // Cek Sesi (Apakah ID masih valid di database)
 async function checkSession() {
     if (!currentUserId) {
-        window.location.href = "login.html";
+        window.location.href = "index.html";
         return;
     }
 
@@ -37,7 +37,7 @@ async function checkSession() {
     } catch (error) {
         console.error("Session check failed:", error);
         localStorage.removeItem('id_user');
-        window.location.href = "login.html";
+        window.location.href = "index.html";
     }
 }
 
