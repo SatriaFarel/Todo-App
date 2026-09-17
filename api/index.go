@@ -30,7 +30,6 @@ type Task struct {
 
 type User struct {
 	ID int `json:"id"`
-	Name string	`json:"name"`
 	Email string `json:"email"`
 	Password string `json:"password"`
 }
@@ -283,7 +282,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		defer conn.Close(ctx)
 
 		var rows pgx.Rows
-		rows, err = conn.Query(ctx, "SELECT id, name, email FROM users ORDER BY id DESC")
+		rows, err = conn.Query(ctx, "SELECT id, email, password FROM users ORDER BY id DESC")
 
 		if err != nil {
 			http.Error(w, `{"error": "Gagal mengambil data task"}`, http.StatusInternalServerError)
@@ -294,7 +293,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		var tasks []User
 		for rows.Next() {
 			var t User
-			rows.Scan(&t.ID, &t.Name, &t.Email)
+			rows.Scan(&t.ID, &t.Email, &t.Password)
 			tasks = append(tasks, t)
 		}
 
